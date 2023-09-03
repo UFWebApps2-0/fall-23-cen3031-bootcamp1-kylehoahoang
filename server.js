@@ -5,11 +5,13 @@ var http = require('http'),
 /* Global variables */
 var listingData, server;
 
+
 var requestHandler = function(request, response) {
+
   /*Investigate the request object. 
     You will need to use several of its properties: url and method
   */
-  //console.log(request);
+  // console.log(request);
 
   /*
     Your request handler should send listingData in the JSON format as a response if a GET request 
@@ -29,7 +31,33 @@ var requestHandler = function(request, response) {
     Helpful example: if-else structure- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else
 
     */
+
+    const pathName = request.url;
+    if (pathName === `/listings`)
+    {
+      if (request.method === "GET")
+      {
+        response.writeHead(200, { 'Content-type': 'application/json'});
+        // Sends listingData as a response
+        response.end(listingData);
+      }
+      else
+      {
+        response.writeHead(404);
+        response.end('404 ERROR! Not a GET request for listings page!');
+      }
+      
+
+    }
+    else
+    {
+      response.writeHead(404);
+      response.end('404 ERROR! You are not on the listings page.');
+      console.log('404 error not on listings page');
+    }
+
 };
+
 
 fs.readFile('listings.json', 'utf8', function(err, data) {
   /*
@@ -49,12 +77,27 @@ fs.readFile('listings.json', 'utf8', function(err, data) {
    */
   
 
-   //Save the data in the listingData variable already defined
-  
+  // Check for error
+  if (err)
+  {
+    throw err;
+  }
+
+
+  //Save the data in the listingData variable already defined
+   listingData = data;
+
+
 
   //Creates the server
-  
+   server = http.createServer(requestHandler); 
+
+
+
   //Start the server
+  server.listen(port, function() {
+      console.log(`Server is listening on http://127.0.0.1:` + port)
+  });
 
-
+   
 });
